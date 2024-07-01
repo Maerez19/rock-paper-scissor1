@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: rgb(255, 0, 170);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: #3c3c3c;
+            color: #ffffff;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s, color 0.3s;
+            max-width: 90%;
+            width: 400px;
+        }
+
+        .dark-mode .container {
+            background: #000000;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            color: #333;
+            background: linear-gradient(270deg, rgb(255, 73, 73), orange, #f18bff, #90ffaa);
+            background-size: 800% 800%;
+            -webkit-backgroundclip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 10s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .intro, .game-container {
+            display: none;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .choices button {
+            background: none;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+            margin: 5px;
+            width: 80px;
+        }
+
+        .choices button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 2px solid #3697ff;
+        }
+
+        .choices img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .result {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .result p {
+            margin: 5px 0;
+        }
+
+        .result img {
+            vertical-align: middle;
+        }
+
+        .result .you-lose {
+            color: orange;
+            font-size: larger;
+            font-weight: bold;
+        }
+
+        .result .you-win {
+            color: orange;
+            font-size: larger;
+            font-weight: bold;
+        }
+
+        .result .tie {
+            color: red;
+            font-size: larger;
+            font-weight: bold;
+        }
+
+        #modeToggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .dark-mode #modeToggle {
+            color: #ffffff;
+        }
+
+        .light-mode #modeToggle {
+            color: #000000;
+        }
+
+        #exitGame {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #ff5242;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+
+        #exitGame:hover {
+            background-color: #ff1500;
+        }
+
+        .icon-button {
+            background: none;
+            border: 2px solid #007BFF;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 24px;
+            color: #007BFF;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .icon-button:hover {
+            background-color: #007BFF;
+            color: #ffffff;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.2em;
+            }
+
+            .choices button {
+                width: 70px;
+            }
+
+            #exitGame {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <button id="modeToggle" aria-label="Toggle dark mode">🌙</button>
+    
+    <!-- Introduction Page -->
+    <div class="container intro show">
+        <h1>Welcome to Rock Paper Scissors</h1>
+        <p>Tap to Play!</p>
+        <button id="startGame" class="icon-button" aria-label="Start Game"><i class="fas fa-play"></i></button>
+    </div>
+
+    <!-- Game Page -->
+    <div class="container game-container">
+        <h1>Rock Paper Scissors</h1>
+        <h2>Choose to Play!</h2>
+        <div class="choices">
+            <button id="rock" aria-label="Choose Rock"><img src="3.2.jpg" alt="Rock"><br>Rock</button>
+            <button id="paper" aria-label="Choose Paper"><img src="2.3.jpg" alt="Paper"><br>Paper</button>
+            <button id="scissors" aria-label="Choose Scissors"><img src="2.1.jpg" alt="Scissors"><br>Scissors</button>
+        </div>
+        <div class="result" id="result"></div>
+        <button id="exitGame">Exit Game</button>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const choices = ['rock', 'paper', 'scissors'];
+            const resultDiv = document.getElementById('result');
+            const modeToggle = document.getElementById('modeToggle');
+            const startGameBtn = document.getElementById('startGame');
+            const exitGameBtn = document.getElementById('exitGame');
+            const intro = document.querySelector('.intro');
+            const gameContainer = document.querySelector('.game-container');
+            const body = document.body;
+            const buttons = document.querySelectorAll('.choices button');
+
+            startGameBtn.addEventListener('click', () => {
+                intro.classList.remove('show');
+                gameContainer.classList.add('show');
+            });
+
+            exitGameBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to end the game?')) {
+                    gameContainer.classList.remove('show');
+                    intro.classList.add('show');
+                    resultDiv.innerHTML = ''; // Clear the result when exiting the game
+                }
+            });
+
+            document.querySelectorAll('.choices button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const playerChoice = button.id;
+                    const cpuChoice = choices[Math.floor(Math.random() * choices.length)];
+                    const result = determineWinner(playerChoice, cpuChoice);
+
+                    resultDiv.innerHTML = `<p>Please wait...</p>`;
+                    
+                    setTimeout(() => {
+                        displayResult(result, playerChoice, cpuChoice);
+                    }, 2000); // 2 seconds delay
+                });
+            });
+
+            function determineWinner(player, cpu) {
+                if (player === cpu) {
+                    return 'It\'s a tie!';
+                }
+                if ((player === 'rock' && cpu === 'scissors') || 
+                    (player === 'paper' && cpu === 'rock') || 
+                    (player === 'scissors' && cpu === 'paper')) {
+                    return 'You win!';
+                }
+                return 'You lose!';
+            }
+
+            function displayResult(result, playerChoice, cpuChoice) {
+                const mode = body.classList.contains('dark-mode') ? 'dark' : 'light';
+                resultDiv.innerHTML = `
+                    <p>You chose: <img src="${playerChoice}-${mode}.jpg" alt="${playerChoice}" width="50"></p>
+                    <p>CPU chose: <img src="${cpuChoice}-${mode}.jpg" alt="${cpuChoice}" width="50"></p>
+                    <p class="${result === 'You win!' ? 'you-win' : result === 'You lose!' ? 'you-lose' : 'tie'}">${result}</p>
+                `;
+            }
+
+            modeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                body.classList.toggle('light-mode');
+                resultDiv.innerHTML = ''; // Clear result on mode toggle
+                if (body.classList.contains('dark-mode')) {
+                    modeToggle.textContent = '☀️';
+                    switchImages('dark');
+                } else {
+                    modeToggle.textContent = '🌙';
+                    switchImages('light');
+                }
+            });
+
+            function switchImages(mode) {
+                buttons.forEach(button => {
+                    const img = button.querySelector('img');
+                    const choice = button.id;
+                    img.src = `${choice}-${mode}.jpg`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
